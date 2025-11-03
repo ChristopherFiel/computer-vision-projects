@@ -4,8 +4,6 @@ __pycache__/
 *.so
 
 # Virtual environments
-venv/
-env/
 opencv/
 
 # VSCode or PyCharm settings
