@@ -1,0 +1,16 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+env/
+opencv/
+
+# VSCode or PyCharm settings
+.vscode/
+.idea/
+
+# macOS system files
+.DS_Store
