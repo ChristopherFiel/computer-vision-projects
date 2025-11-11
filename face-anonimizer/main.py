@@ -1,5 +1,6 @@
 import os
 import argparse
+import numpy as np
 
 import cv2
 import mediapipe as mp
@@ -13,22 +14,35 @@ def process_img(img, face_detection):
 
     if out.detections is not None:
         for detection in out.detections:
-            location_data = detection.location_data
-            bbox = location_data.relative_bounding_box
+            bbox = detection.location_data.relative_bounding_box
 
-            x1, y1, w, h = bbox.xmin, bbox.ymin, bbox.width, bbox.height
+            x1 = int(bbox.xmin * W)
+            y1 = int(bbox.ymin * H)
+            w = int(bbox.width * W)
+            h = int(bbox.height * H)
 
-            x1 = int(x1 * W)
-            y1 = int(y1 * H)
-            w = int(w * W)
-            h = int(h * H)
+            # Face center
+            cx = x1 + w // 2
+            cy = y1 + h // 2
 
-            # print(x1, y1, w, h)
+            # Oval radii — faces are taller than wide (~1:1.3 ratio)
+            rx = int(w * 0.50)  # width radius
+            ry = int(h * 0.60)  # height radius
 
-            # blur faces
-            img[y1 : y1 + h, x1 : x1 + w, :] = cv2.blur(
-                img[y1 : y1 + h, x1 : x1 + w, :], (30, 30)
-            )
+            # Blur image
+            blurred = cv2.GaussianBlur(img, (75, 75), 50)
+
+            # Create empty mask
+            mask = np.zeros((H, W), dtype=np.uint8)
+
+            # Draw ellipse (oval)
+            cv2.ellipse(mask, (cx, cy), (rx, ry), 0, 0, 360, 255, -1)
+
+            # 3-channel mask
+            mask_3c = cv2.merge([mask, mask, mask])
+
+            # Blend: where mask = blur, else original
+            img = np.where(mask_3c == 255, blurred, img)
 
     return img
 
