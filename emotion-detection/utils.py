@@ -4,7 +4,10 @@ import mediapipe as mp
 
 def get_face_landmarks(image, draw=False, static_image_mode=True):
     # Read the input image
-    image_input_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    if len(image.shape) == 2:  # grayscale image
+        image_input_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    else:
+        image_input_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     face_mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=static_image_mode,
